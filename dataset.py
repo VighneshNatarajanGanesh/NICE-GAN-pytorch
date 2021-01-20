@@ -2,6 +2,10 @@ import torch.utils.data as data
 
 from PIL import Image
 
+import numpy as np
+
+import h5py
+
 import os
 import os.path
 
@@ -85,18 +89,26 @@ class DatasetFolder(data.Dataset):
         return fmt_str
 
 
-IMG_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif']
+# change 1: added .hdf5 as valid input format.
+IMG_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif', '.hdf5']
 
 
-def pil_loader(path):
+def pil_and_hdf5_loader(path):
     # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
-    with open(path, 'rb') as f:
-        img = Image.open(f)
-        return img.convert('RGB')
+
+    # for hdf5
+    if(path.endswith('.hdf5')):
+        with h5py.File(path, 'r') as f:
+            return np.array(f)
+    # for other types
+    else:
+        with open(path, 'rb') as f:
+            img = Image.open(f)
+            return img.convert('RGB')
 
 
 def default_loader(path):
-    return pil_loader(path)
+    return pil_and_hdf5_loader(path)
 
 
 class ImageFolder(DatasetFolder):
