@@ -9,6 +9,7 @@ import h5py
 import os
 import os.path
 
+HDF5_DATASET_NAME = 'hs_data'
 
 def has_file_allowed_extension(filename, extensions):
     """Checks if a file is an allowed extension.
@@ -95,11 +96,13 @@ IMG_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.ppm', '.bmp', '.pgm', '.tif', '.hdf
 
 def pil_and_hdf5_loader(path):
     # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
-
     # for hdf5
     if(path.endswith('.hdf5')):
         with h5py.File(path, 'r') as f:
-            return np.array(f)
+            return f[HDF5_DATASET_NAME][:]
+
+            # note:
+            # DONOT USE: np.array(f[hdf5_dataset_name]) it was much slower in testi
     # for other types
     else:
         with open(path, 'rb') as f:
