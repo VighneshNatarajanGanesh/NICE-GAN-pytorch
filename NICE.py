@@ -368,9 +368,15 @@ class NICE(object) :
                     except: # it is not, then write it as a hdf5
                         print('-------------------------------------------------')
                         print(A2B.shape)
+                        print(np.concatenate((tensor2numpy(denorm(real_A[0])),
+                                                                   cam(tensor2numpy(A_heatmap[0]), self.img_size),
+                                                                   tensor2numpy(denorm(fake_A2A[0])),
+                                                                   tensor2numpy(denorm(fake_A2B[0])),
+                                                                   tensor2numpy(denorm(fake_A2B2A[0]))), 0).shape)
                         print(tensor2numpy(denorm(real_A[0])).shape)
                         print(cam(tensor2numpy(A_heatmap[0]), self.img_size).shape)
                         print(tensor2numpy(denorm(fake_A2A[0])).shape)
+                        print(tensor2numpy(denorm(fake_A2B[0])).shape)
                         print(tensor2numpy(denorm(fake_A2B2A[0])).shape)
                         print('-------------------------------------------------')
                         A2B = np.concatenate((A2B, np.concatenate((tensor2numpy(denorm(real_A[0])),
