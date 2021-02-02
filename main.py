@@ -28,7 +28,8 @@ def parse_args():
     parser.add_argument('--n_dis', type=int, default=7, help='The number of discriminator layer')
 
     parser.add_argument('--img_size', type=int, default=256, help='The size of image')
-    parser.add_argument('--img_ch', type=int, default=3, help='The size of image channel')
+    parser.add_argument('--img_ch_a', type=int, default=3, help='The size of image channel of domain a')
+    parser.add_argument('--img_ch_b', type=int, default=3, help='The size of image channel of domain b')
 
     parser.add_argument('--result_dir', type=str, default='results', help='Directory name to save the results')
     parser.add_argument('--device', type=str, default='cuda', choices=['cpu', 'cuda'], help='Set gpu mode; [cpu, cuda]')

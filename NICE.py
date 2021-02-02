@@ -44,7 +44,9 @@ class NICE(object) :
         self.n_dis = args.n_dis
 
         self.img_size = args.img_size
-        self.img_ch = args.img_ch
+        # add support for different channel input and output images:
+        self.img_ch_a = args.img_ch_a
+        self.img_ch_b = args.img_ch_b
 
         self.device = args.device
         self.benchmark_flag = args.benchmark_flag
@@ -67,7 +69,8 @@ class NICE(object) :
         print("# batch_size : ", self.batch_size)
         print("# iteration per epoch : ", self.iteration)
         print("# the size of image : ", self.img_size)
-        print("# the size of image channel : ", self.img_ch)
+        print("# the size of image channel a: ", self.img_ch_a)
+        print("# the size of image channel b: ", self.img_ch_b)
         print("# base channel number per layer : ", self.ch)
 
         print()
@@ -116,13 +119,13 @@ class NICE(object) :
         self.testB_loader = DataLoader(self.testB, batch_size=1, shuffle=False,pin_memory=True)
 
         """ Define Generator, Discriminator """
-        self.gen2B = ResnetGenerator(input_nc=self.img_ch, output_nc=self.img_ch, ngf=self.ch, n_blocks=self.n_res, img_size=self.img_size, light=self.light).to(self.device)
-        self.gen2A = ResnetGenerator(input_nc=self.img_ch, output_nc=self.img_ch, ngf=self.ch, n_blocks=self.n_res, img_size=self.img_size, light=self.light).to(self.device)
-        self.disA = Discriminator(input_nc=self.img_ch, ndf=self.ch, n_layers=self.n_dis).to(self.device)
-        self.disB = Discriminator(input_nc=self.img_ch, ndf=self.ch, n_layers=self.n_dis).to(self.device)
+        self.gen2B = ResnetGenerator(input_nc=self.img_ch_a, output_nc=self.img_ch_b, ngf=self.ch, n_blocks=self.n_res, img_size=self.img_size, light=self.light).to(self.device)
+        self.gen2A = ResnetGenerator(input_nc=self.img_ch_b, output_nc=self.img_ch_a, ngf=self.ch, n_blocks=self.n_res, img_size=self.img_size, light=self.light).to(self.device)
+        self.disA = Discriminator(input_nc=self.img_ch_a, ndf=self.ch, n_layers=self.n_dis).to(self.device)
+        self.disB = Discriminator(input_nc=self.img_ch_b, ndf=self.ch, n_layers=self.n_dis).to(self.device)
         
         print('-----------------------------------------------')
-        input = torch.randn([1, self.img_ch, self.img_size, self.img_size]).to(self.device)
+        input = torch.randn([1, self.img_ch_a, self.img_size, self.img_size]).to(self.device)
         macs, params = profile(self.disA, inputs=(input, ))
         macs, params = clever_format([macs*2, params*2], "%.3f")
         print('[Network %s] Total number of parameters: ' % 'disA', params)
