@@ -99,7 +99,7 @@ def pil_and_hdf5_loader(path):
     # for hdf5
     if(path.endswith('.hdf5')):
         with h5py.File(path, 'r') as f:
-            return f[HDF5_DATASET_NAME][:].astype(float)
+            return f[HDF5_DATASET_NAME][:].astype(np.float32)
 
             # note:
             # DONOT USE: np.array(f[hdf5_dataset_name]) it was much slower in testi
