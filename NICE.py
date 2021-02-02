@@ -366,6 +366,12 @@ class NICE(object) :
                                                                RGB2BGR(tensor2numpy(denorm(fake_A2B[0]))),
                                                                RGB2BGR(tensor2numpy(denorm(fake_A2B2A[0])))), 0)), 1)
                     except: # it is not, then write it as a hdf5
+                        print('-------------------------------------------------')
+                        print(tensor2numpy(denorm(real_A[0])).shape)
+                        print(cam(tensor2numpy(A_heatmap[0]), self.img_size).shape)
+                        print(tensor2numpy(denorm(fake_A2A[0])).shape)
+                        print(tensor2numpy(denorm(fake_A2B2A[0])).shape)
+                        print('-------------------------------------------------')
                         A2B = np.concatenate((A2B, np.concatenate((tensor2numpy(denorm(real_A[0])),
                                                                    cam(tensor2numpy(A_heatmap[0]), self.img_size),
                                                                    tensor2numpy(denorm(fake_A2A[0])),
