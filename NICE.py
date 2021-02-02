@@ -387,6 +387,10 @@ class NICE(object) :
                                                                                cam(tensor2numpy(A_heatmap[0]), self.img_size),
                                                                                RGB2BGR(tensor2numpy(denorm(fake_A2A[0]))),
                                                                                RGB2BGR(tensor2numpy(denorm(fake_A2B2A[0])))), 0)), 1)
+                        print('-------------------------------------')
+                        print(nonRgbDomain.shape)
+                        print(tensor2numpy(denorm(fake_A2B[0])).shape)
+                        print('-------------------------------------')
                         genNonRgbDomain = np.concatenate((nonRgbDomain, tensor2numpy(denorm(fake_A2B[0]))), 1)
 
                         nonRgbDomain = np.concatenate((nonRgbDomain, np.concatenate((tensor2numpy(denorm(real_B[0])),
