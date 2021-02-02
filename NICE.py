@@ -97,17 +97,15 @@ class NICE(object) :
     def build_model(self):
         """ DataLoader """
         train_transform = transforms.Compose([
-            transforms.RandomHorizontalFlip(),
-            transforms.Resize((self.img_size + 30, self.img_size+30)),
-            transforms.RandomCrop(self.img_size),
             transforms.ToTensor(),
             transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
-        ])
+        ]) # removed horizontal flip, resize and random_crop because they use pil which doesn't suppert multichannel images above 3
         test_transform = transforms.Compose([
-            transforms.Resize((self.img_size, self.img_size)),
             transforms.ToTensor(),
             transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
-        ])
+        ]) # removed Resize as it uses PIL
+        # thereform note: the images must be preprocessed properly!! with all the augmentation and cropping!
+
 
         self.trainA = ImageFolder(os.path.join('dataset', self.dataset, 'trainA'), train_transform)
         self.trainB = ImageFolder(os.path.join('dataset', self.dataset, 'trainB'), train_transform)
