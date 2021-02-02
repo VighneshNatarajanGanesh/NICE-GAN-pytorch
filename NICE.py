@@ -387,17 +387,13 @@ class NICE(object) :
                                                                                cam(tensor2numpy(A_heatmap[0]), self.img_size),
                                                                                RGB2BGR(tensor2numpy(denorm(fake_A2A[0]))),
                                                                                RGB2BGR(tensor2numpy(denorm(fake_A2B2A[0])))), 0)), 1)
-                        print('-------------------------------------')
-                        print(nonRgbDomain.shape)
-                        print(tensor2numpy(denorm(fake_A2B[0])).shape)
-                        print('-------------------------------------')
-                        genNonRgbDomain = np.concatenate((nonRgbDomain, tensor2numpy(denorm(fake_A2B[0]))), 1)
+                        genNonRgbDomain = np.concatenate((genNonRgbDomain, tensor2numpy(denorm(fake_A2B[0]))), 1)
 
                         nonRgbDomain = np.concatenate((nonRgbDomain, np.concatenate((tensor2numpy(denorm(real_B[0])),
                                                                                      cam(tensor2numpy(B_heatmap[0]), self.img_size),
                                                                                      tensor2numpy(denorm(fake_B2B[0])),
                                                                                      tensor2numpy(denorm(fake_B2A2B[0]))), 0)), 1)
-                        genRgbDomain = np.concatenate((nonRgbDomain, RGB2BGR(tensor2numpy(denorm(fake_B2A[0])))), 1)
+                        genRgbDomain = np.concatenate((genRgbDomain, RGB2BGR(tensor2numpy(denorm(fake_B2A[0])))), 1)
 
                 for _ in range(test_sample_num):
                     try:
@@ -443,17 +439,18 @@ class NICE(object) :
                                                                RGB2BGR(tensor2numpy(denorm(fake_B2A2B[0])))), 0)), 1)
                     except: # it is not, then write it as a hdf5
                         flag = 1
+
                         rgbDomain = np.concatenate((rgbDomain, np.concatenate((RGB2BGR(tensor2numpy(denorm(real_A[0]))),
                                                                                cam(tensor2numpy(A_heatmap[0]), self.img_size),
                                                                                RGB2BGR(tensor2numpy(denorm(fake_A2A[0]))),
                                                                                RGB2BGR(tensor2numpy(denorm(fake_A2B2A[0])))), 0)), 1)
-                        genNonRgbDomain = np.concatenate((nonRgbDomain, tensor2numpy(denorm(fake_A2B[0]))), 1)
+                        genNonRgbDomain = np.concatenate((genNonRgbDomain, tensor2numpy(denorm(fake_A2B[0]))), 1)
 
                         nonRgbDomain = np.concatenate((nonRgbDomain, np.concatenate((tensor2numpy(denorm(real_B[0])),
-                                                           cam(tensor2numpy(B_heatmap[0]), self.img_size),
-                                                           tensor2numpy(denorm(fake_B2B[0])),
-                                                           tensor2numpy(denorm(fake_B2A2B[0]))), 0)), 1)
-                        genRgbDomain = np.concatenate((nonRgbDomain, RGB2BGR(tensor2numpy(denorm(fake_B2A[0])))), 1)
+                                                                                     cam(tensor2numpy(B_heatmap[0]), self.img_size),
+                                                                                     tensor2numpy(denorm(fake_B2B[0])),
+                                                                                     tensor2numpy(denorm(fake_B2A2B[0]))), 0)), 1)
+                        genRgbDomain = np.concatenate((genRgbDomain, RGB2BGR(tensor2numpy(denorm(fake_B2A[0])))), 1)
 
 
                 # write the images:
