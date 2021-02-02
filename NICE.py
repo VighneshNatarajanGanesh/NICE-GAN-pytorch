@@ -96,21 +96,37 @@ class NICE(object) :
 
     def build_model(self):
         """ DataLoader """
-        train_transform = transforms.Compose([
+
+        # we have fifferent transformations as we have different number of channels which require
+        # different arguments for Normalize function
+        train_transform_a = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
+            transforms.Normalize(mean=(0.5, )*self.img_ch_a, std=(0.5, )*self.img_ch_a)
         ]) # removed horizontal flip, resize and random_crop because they use pil which doesn't suppert multichannel images above 3
-        test_transform = transforms.Compose([
+
+        train_transform_b = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
+            transforms.Normalize(mean=(0.5,)*self.img_ch_b, std=(0.5,)*self.img_ch_b)
+        ])
+
+
+        test_transform_a = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=(0.5, )*self.img_ch_a, std=(0.5, )*self.img_ch_a)
         ]) # removed Resize as it uses PIL
+
+        test_transform_b = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=(0.5,)*self.img_ch_b, std=(0.5,)*self.img_ch_b)
+        ])
+
         # thereform note: the images must be preprocessed properly!! with all the augmentation and cropping!
 
 
-        self.trainA = ImageFolder(os.path.join('dataset', self.dataset, 'trainA'), train_transform)
-        self.trainB = ImageFolder(os.path.join('dataset', self.dataset, 'trainB'), train_transform)
-        self.testA = ImageFolder(os.path.join('dataset', self.dataset, 'testA'), test_transform)
-        self.testB = ImageFolder(os.path.join('dataset', self.dataset, 'testB'), test_transform)
+        self.trainA = ImageFolder(os.path.join('dataset', self.dataset, 'trainA'), train_transform_a)
+        self.trainB = ImageFolder(os.path.join('dataset', self.dataset, 'trainB'), train_transform_b)
+        self.testA = ImageFolder(os.path.join('dataset', self.dataset, 'testA'), test_transform_a)
+        self.testB = ImageFolder(os.path.join('dataset', self.dataset, 'testB'), test_transform_b)
         self.trainA_loader = DataLoader(self.trainA, batch_size=self.batch_size, shuffle=True,pin_memory=True)
         self.trainB_loader = DataLoader(self.trainB, batch_size=self.batch_size, shuffle=True,pin_memory=True)
         self.testA_loader = DataLoader(self.testA, batch_size=1, shuffle=False,pin_memory=True)
