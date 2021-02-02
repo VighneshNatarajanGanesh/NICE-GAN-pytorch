@@ -8,6 +8,7 @@ from glob import glob
 # import torch.utils.tensorboard as tensorboardX
 from thop import profile
 from thop import clever_format
+import h5py
 
 class NICE(object) :
     def __init__(self, args):
@@ -358,17 +359,31 @@ class NICE(object) :
                     fake_A2A = self.gen2A(real_A_z)
                     fake_B2B = self.gen2B(real_B_z)
 
-                    A2B = np.concatenate((A2B, np.concatenate((RGB2BGR(tensor2numpy(denorm(real_A[0]))),
+                    try: # it is an rgb image
+                        A2B = np.concatenate((A2B, np.concatenate((RGB2BGR(tensor2numpy(denorm(real_A[0]))),
                                                                cam(tensor2numpy(A_heatmap[0]), self.img_size),
                                                                RGB2BGR(tensor2numpy(denorm(fake_A2A[0]))),
                                                                RGB2BGR(tensor2numpy(denorm(fake_A2B[0]))),
                                                                RGB2BGR(tensor2numpy(denorm(fake_A2B2A[0])))), 0)), 1)
+                    except: # it is not, then write it as a hdf5
+                        A2B = np.concatenate((A2B, np.concatenate((tensor2numpy(denorm(real_A[0])),
+                                                                   cam(tensor2numpy(A_heatmap[0]), self.img_size),
+                                                                   tensor2numpy(denorm(fake_A2A[0])),
+                                                                   tensor2numpy(denorm(fake_A2B[0])),
+                                                                   tensor2numpy(denorm(fake_A2B2A[0]))), 0)), 1)
 
-                    B2A = np.concatenate((B2A, np.concatenate((RGB2BGR(tensor2numpy(denorm(real_B[0]))),
+                    try:
+                        B2A = np.concatenate((B2A, np.concatenate((RGB2BGR(tensor2numpy(denorm(real_B[0]))),
                                                                cam(tensor2numpy(B_heatmap[0]), self.img_size),
                                                                RGB2BGR(tensor2numpy(denorm(fake_B2B[0]))),
                                                                RGB2BGR(tensor2numpy(denorm(fake_B2A[0]))),
                                                                RGB2BGR(tensor2numpy(denorm(fake_B2A2B[0])))), 0)), 1)
+                    except: # it is not, then write it as a hdf5
+                        B2A = np.concatenate((B2A, np.concatenate((tensor2numpy(denorm(real_B[0])),
+                                                                   cam(tensor2numpy(B_heatmap[0]), self.img_size),
+                                                                   tensor2numpy(denorm(fake_B2B[0])),
+                                                                   tensor2numpy(denorm(fake_B2A[0])),
+                                                                   tensor2numpy(denorm(fake_B2A2B[0]))), 0)), 1)
 
                 for _ in range(test_sample_num):
                     try:
@@ -400,20 +415,44 @@ class NICE(object) :
                     fake_A2A = self.gen2A(real_A_z)
                     fake_B2B = self.gen2B(real_B_z)
 
-                    A2B = np.concatenate((A2B, np.concatenate((RGB2BGR(tensor2numpy(denorm(real_A[0]))),
+                    try:
+                        A2B = np.concatenate((A2B, np.concatenate((RGB2BGR(tensor2numpy(denorm(real_A[0]))),
                                                                cam(tensor2numpy(A_heatmap[0]), self.img_size),
                                                                RGB2BGR(tensor2numpy(denorm(fake_A2A[0]))),
                                                                RGB2BGR(tensor2numpy(denorm(fake_A2B[0]))),
                                                                RGB2BGR(tensor2numpy(denorm(fake_A2B2A[0])))), 0)), 1)
-
-                    B2A = np.concatenate((B2A, np.concatenate((RGB2BGR(tensor2numpy(denorm(real_B[0]))),
+                    except: # it is not, then write it as a hdf5
+                        A2B = np.concatenate((A2B, np.concatenate((tensor2numpy(denorm(real_A[0])),
+                                                                   cam(tensor2numpy(A_heatmap[0]), self.img_size),
+                                                                   tensor2numpy(denorm(fake_A2A[0])),
+                                                                   tensor2numpy(denorm(fake_A2B[0])),
+                                                                   tensor2numpy(denorm(fake_A2B2A[0]))), 0)), 1)
+                    try:
+                        B2A = np.concatenate((B2A, np.concatenate((RGB2BGR(tensor2numpy(denorm(real_B[0]))),
                                                                cam(tensor2numpy(B_heatmap[0]), self.img_size),
                                                                RGB2BGR(tensor2numpy(denorm(fake_B2B[0]))),
                                                                RGB2BGR(tensor2numpy(denorm(fake_B2A[0]))),
                                                                RGB2BGR(tensor2numpy(denorm(fake_B2A2B[0])))), 0)), 1)
+                    except: # it is not, then write it as a hdf5
+                        B2A = np.concatenate((B2A, np.concatenate((tensor2numpy(denorm(real_B[0])),
+                                                                   cam(tensor2numpy(B_heatmap[0]), self.img_size),
+                                                                   tensor2numpy(denorm(fake_B2B[0])),
+                                                                   tensor2numpy(denorm(fake_B2A[0])),
+                                                                   tensor2numpy(denorm(fake_B2A2B[0]))), 0)), 1)
 
-                cv2.imwrite(os.path.join(self.result_dir, self.dataset, 'img', 'A2B_%07d.png' % step), A2B * 255.0)
-                cv2.imwrite(os.path.join(self.result_dir, self.dataset, 'img', 'B2A_%07d.png' % step), B2A * 255.0)
+
+                # write the images:
+                try: # if rgb
+                    cv2.imwrite(os.path.join(self.result_dir, self.dataset, 'img', 'A2B_%07d.png' % step), A2B * 255.0)
+                except: # if any error due to multichannel images, save it as hdf5 image:
+                    with h5py.File(os.path.join(self.result_dir, self.dataset, 'img', 'A2B_%07d.hdf5' % step), 'w') as f:
+                        dset = f.create_dataset('hs_data', data=A2B)
+
+                try:
+                    cv2.imwrite(os.path.join(self.result_dir, self.dataset, 'img', 'B2A_%07d.png' % step), B2A * 255.0)
+                except:
+                    with h5py.File(os.path.join(self.result_dir, self.dataset, 'img', 'B2A_%07d.hdf5' % step), B2A) as f:
+                        dset = f.create_dataset('hs_data', data=B2A)
                 
 
                 self.gen2B,self.gen2A = self.gen2B.to(self.device), self.gen2A.to(self.device)
