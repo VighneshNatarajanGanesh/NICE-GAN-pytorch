@@ -100,7 +100,7 @@ class NICE(object) :
         # we have fifferent transformations as we have different number of channels which require
         # different arguments for Normalize function
         train_transform_a = transforms.Compose([
-            transforms.ToTensor().do,
+            transforms.ToTensor(),
             transforms.Normalize(mean=(0.5, )*self.img_ch_a, std=(0.5, )*self.img_ch_a)
         ]) # removed horizontal flip, resize and random_crop because they use pil which doesn't suppert multichannel images above 3
 
