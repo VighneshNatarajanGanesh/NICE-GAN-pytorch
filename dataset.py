@@ -99,15 +99,41 @@ def pil_and_hdf5_loader(path):
     # for hdf5
     if(path.endswith('.hdf5')):
         with h5py.File(path, 'r') as f:
-            return f[HDF5_DATASET_NAME][:].astype(np.float32)
+            data = f[HDF5_DATASET_NAME][:].astype(np.float32)
+            # normalize it to 0 to 1
+            data /= (data.max() - data.min() + 0.0001)
+            # normalize to -1 to 1
+            data *= 2
+            data -= 1
+            
+            # the torrchvision.transforms.toTensor rescales input to the range -1 to 1 in certain conditions,
+            # we want to scale -1 to 1
+            # so scale in the dataloader itself!
+            # link: https://pytorch.org/docs/stable/torchvision/transforms.html
+            
+            return data
 
             # note:
-            # DONOT USE: np.array(f[hdf5_dataset_name]) it was much slower in testi
+            # DONOT USE: np.array(f[hdf5_dataset_name]) it was much slower in testing
+            
     # for other types
     else:
         with open(path, 'rb') as f:
             img = Image.open(f)
-            return img.convert('RGB')
+            data = np.array(img.convert('RGB')).astype(np.float32)
+            
+            # here too we want the scaling to be from -1 to 1
+            # the to tensor normalizes 0 to 1 only if the numpy array is of type uint8
+            # so return float32 image instead
+            # link: https://pytorch.org/docs/stable/torchvision/transforms.html
+            
+            # normalize it to 0 to 1
+            data /= (data.max() - data.min() + 0.0001)
+            # normalize to -1 to 1
+            data *= 2
+            data -= 1
+            
+            return data
 
 
 def default_loader(path):
